@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"os"
 
@@ -9,14 +8,31 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 	"github.com/riju-stone/go-rss/routes/v1"
+	"github.com/riju-stone/go-rss/utils"
 )
 
 func main() {
+	// Load env variables
 	godotenv.Load(".env")
-	port := os.Getenv("PORT")
 
+	// Creating customer logger directory and file
+	logFile := os.Getenv("LOGFILE")
+	if dirError := os.Mkdir("logs", os.ModePerm); dirError != nil {
+		panic(dirError)
+	}
+
+	f, fileError := os.OpenFile(logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	if fileError != nil {
+		panic(fileError)
+	}
+
+	// Initializing Custom Logger
+	rssLog := utils.InitLogger(f)
+	defer f.Close()
+
+	port := os.Getenv("PORT")
 	if port == "" {
-		log.Fatal("Could not locate PORT config in environment")
+		rssLog.Error("Could not locate PORT config in environment")
 	}
 
 	// Creating a new router
@@ -35,6 +51,7 @@ func main() {
 	// Adding & Mounting Sub-routes
 	v1Router := routes.InitV1Routes()
 	router.Mount("/v1", v1Router)
+	rssLog.Debug("V1 Routes Mounted")
 
 	// Initializing a new HTTP server using the declared router
 	server := &http.Server{
@@ -43,9 +60,9 @@ func main() {
 	}
 
 	// Executing the server to listen to a particular port
-	log.Printf("Server Listening on Port: %v", port)
-	err := server.ListenAndServe()
-	if err != nil {
-		log.Fatal(err)
+	rssLog.Info("Server Listening on Port: ", port)
+	serverError := server.ListenAndServe()
+	if serverError != nil {
+		rssLog.Panic(serverError)
 	}
 }
