@@ -1,8 +1,9 @@
 package utils
 
 import (
-	"log"
 	"net/http"
+
+	log "github.com/riju-stone/go-rss/logging"
 )
 
 type errResponse struct {
@@ -12,7 +13,7 @@ type errResponse struct {
 func ErrorResponse(w http.ResponseWriter, statusCode int, mssg string) {
 	// Errors below 499 are generally client side errors
 	if statusCode > 499 {
-		log.Println("Responding with 5XX server error: ", mssg)
+		log.Error("Responding with 5XX server error: ", mssg)
 	}
 
 	JsonResponse(w, statusCode, errResponse{Error: mssg})
