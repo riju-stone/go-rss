@@ -25,17 +25,6 @@ type CustomLogFormat struct {
 	LogFormat       string
 }
 
-type HttpRequestLog struct {
-	method string
-	uri    string
-	body   string
-}
-
-type HttpResponseLog struct {
-	code    int
-	payload string
-}
-
 func (f *CustomLogFormat) Format(entry *logrus.Entry) ([]byte, error) {
 	logOutput := f.LogFormat
 	if logOutput == "" {
@@ -106,14 +95,6 @@ func init() {
 func Debug(format string, v ...interface{}) {
 	log.Debugf(format, v...)
 }
-
-// TODO: Add HTTP request and response logging with proper format
-
-// func DebugWithFields[T HttpRequestLog | HttpResponseLog](format string, fields T) {
-// log.WithFields(logrus.Fields{
-//         fields...
-//     }).Debugf(format)
-// }
 
 // Info
 func Info(format string, v ...interface{}) {

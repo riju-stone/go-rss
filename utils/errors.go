@@ -13,7 +13,7 @@ type errResponse struct {
 func ErrorResponse(w http.ResponseWriter, statusCode int, mssg string) {
 	// Errors below 499 are generally client side errors
 	if statusCode > 499 {
-		log.Error("Responding with 5XX server error: ", mssg)
+		log.Error("Responding with 5XX server error: ")
 	}
 
 	JsonResponse(w, statusCode, errResponse{Error: mssg})
