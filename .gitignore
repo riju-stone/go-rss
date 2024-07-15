@@ -24,7 +24,7 @@ go.work
 bin/
 
 # env file
-.env.dev
+.env
 .env.prod
 
 # Logs directory
