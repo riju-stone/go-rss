@@ -9,6 +9,7 @@ import (
 	"github.com/joho/godotenv"
 	log "github.com/riju-stone/go-rss/logging"
 	"github.com/riju-stone/go-rss/routes/v1"
+	"github.com/riju-stone/go-rss/utils"
 )
 
 func main() {
@@ -39,6 +40,9 @@ func main() {
 	v1Router := routes.InitV1Routes()
 	router.Mount("/v1", v1Router)
 	log.Debug("V1 Routes Mounted")
+
+	// Connect database
+	utils.ConnectDB()
 
 	// Initializing a new HTTP server using the declared router
 	server := &http.Server{

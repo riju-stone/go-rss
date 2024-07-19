@@ -8,6 +8,7 @@ require github.com/go-chi/chi/v5 v5.1.0
 
 require (
 	github.com/go-chi/cors v1.2.1
+	github.com/lib/pq v1.10.9
 	github.com/sirupsen/logrus v1.9.3
 )
 
