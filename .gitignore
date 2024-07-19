@@ -30,4 +30,4 @@ bin/
 # Logs directory
 logs/*
 
-
+.DS_Store

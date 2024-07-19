@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 )
@@ -62,8 +64,8 @@ func init() {
 	env := os.Getenv("ENVIRONMENT")
 	logFile := os.Getenv("LOGDIR")
 
-	fmt.Printf("Logfile: %v", logFile)
-	fmt.Printf("Env: %v", env)
+	fmt.Printf("Logfile: %v\n", logFile)
+	fmt.Printf("Env: %v\n", env)
 	if _, err := os.Stat("logs"); errors.Is(err, os.ErrNotExist) {
 		if err := os.Mkdir("logs", os.ModePerm); err != nil {
 			panic(err)
@@ -114,4 +116,24 @@ func Error(format string, v ...interface{}) {
 // panic
 func Panic(format string, v ...interface{}) {
 	log.Panicf(format, v...)
+}
+
+// Log Middleware
+func LogMiddleware(h http.Handler) http.Handler {
+	logFunc := func(res http.ResponseWriter, req *http.Request) {
+		resWriter := middleware.NewWrapResponseWriter(res, req.ProtoMajor)
+		start := time.Now()
+
+		h.ServeHTTP(resWriter, req)
+		duration := time.Since(start)
+
+		scheme := "https"
+		if req.TLS != nil {
+			scheme = "http"
+		}
+
+		log.Infof("Request Completed Uri: %s://%s%s | Method: %s | Status: %d | Duration: %s", scheme, req.Host, req.RequestURI, req.Method, resWriter.Status(), duration)
+	}
+
+	return http.HandlerFunc(logFunc)
 }

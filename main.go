@@ -33,6 +33,8 @@ func main() {
 		MaxAge:           300,
 	}))
 
+	router.Use(log.LogMiddleware)
+
 	// Adding & Mounting Sub-routes
 	v1Router := routes.InitV1Routes()
 	router.Mount("/v1", v1Router)
