@@ -8,7 +8,7 @@ import (
 	log "github.com/riju-stone/go-rss/logging"
 )
 
-func ConnectDB() {
+func ConnectDB() *sql.DB {
 	dbString := os.Getenv("DATABASE_URI")
 	if dbString == "" {
 		log.Panic("DB connection string not found")
@@ -18,7 +18,6 @@ func ConnectDB() {
 	if err != nil {
 		log.Panic("DB connection failed with error: %s", err)
 	}
-	defer db.Close()
 
 	var dbVersion string
 	if err := db.QueryRow("select version()").Scan(&dbVersion); err != nil {
@@ -27,4 +26,6 @@ func ConnectDB() {
 
 	log.Info("DB Connected")
 	log.Info("DB Version: %s", dbVersion)
+
+	return db
 }

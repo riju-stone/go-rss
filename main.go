@@ -7,10 +7,16 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
+	"github.com/riju-stone/go-rss/internal/database"
 	log "github.com/riju-stone/go-rss/logging"
 	"github.com/riju-stone/go-rss/routes/v1"
 	"github.com/riju-stone/go-rss/utils"
 )
+
+type APIConfig struct {
+	port string
+	db   *database.Queries
+}
 
 func main() {
 	// Load env variables
@@ -20,6 +26,13 @@ func main() {
 	if port == "" {
 		log.Error("Could not locate PORT config in environment")
 	}
+
+	// Connect database
+	dbConn := utils.ConnectDB()
+	defer dbConn.Close()
+
+	// Initializing sqlc db conection
+	dbQueries := database.New(dbConn)
 
 	// Creating a new router
 	router := chi.NewRouter()
@@ -34,15 +47,13 @@ func main() {
 		MaxAge:           300,
 	}))
 
+	// Adding custom logger as middleware
 	router.Use(log.LogMiddleware)
 
 	// Adding & Mounting Sub-routes
-	v1Router := routes.InitV1Routes()
+	v1Router := routes.InitV1Routes(dbQueries)
 	router.Mount("/v1", v1Router)
 	log.Debug("V1 Routes Mounted")
-
-	// Connect database
-	utils.ConnectDB()
 
 	// Initializing a new HTTP server using the declared router
 	server := &http.Server{

@@ -132,7 +132,8 @@ func LogMiddleware(h http.Handler) http.Handler {
 			scheme = "http"
 		}
 
-		log.Infof("Request Completed Uri: %s://%s%s | Method: %s | Status: %d | Duration: %s", scheme, req.Host, req.RequestURI, req.Method, resWriter.Status(), duration)
+		log.Infof("Request Completed URI: %s://%s%s | Method: %s | Status: %d | Duration: %s",
+			scheme, req.Host, req.RequestURI, req.Method, resWriter.Status(), duration)
 	}
 
 	return http.HandlerFunc(logFunc)
