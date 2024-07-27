@@ -11,7 +11,9 @@ import (
 )
 
 type UserParams struct {
-	Name string `json:"name"`
+	Fname    string `json:"fname"`
+	Lname    string `json:"lname"`
+	Location string `json:"location"`
 }
 
 func HandleCreateUser(w http.ResponseWriter, r *http.Request, dbq *database.Queries) {
@@ -27,8 +29,11 @@ func HandleCreateUser(w http.ResponseWriter, r *http.Request, dbq *database.Quer
 		ID:        uuid.New(),
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
-		Name:      params.Name,
+		Fname:     params.Fname,
+		Lname:     params.Lname,
+		Location:  params.Location,
 	})
+
 	if err != nil {
 		utils.ErrorResponse(w, 400, "Failed to create user!")
 	}

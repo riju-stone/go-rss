@@ -13,11 +13,6 @@ import (
 	"github.com/riju-stone/go-rss/utils"
 )
 
-type APIConfig struct {
-	port string
-	db   *database.Queries
-}
-
 func main() {
 	// Load env variables
 	godotenv.Load(".env")

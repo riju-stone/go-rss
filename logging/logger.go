@@ -59,6 +59,27 @@ func (f *CustomLogFormat) Format(entry *logrus.Entry) ([]byte, error) {
 	return []byte(logOutput), nil
 }
 
+// Log Middleware
+func LogMiddleware(h http.Handler) http.Handler {
+	logFunc := func(res http.ResponseWriter, req *http.Request) {
+		resWriter := middleware.NewWrapResponseWriter(res, req.ProtoMajor)
+		start := time.Now()
+
+		h.ServeHTTP(resWriter, req)
+		duration := time.Since(start)
+
+		scheme := "https"
+		if req.TLS != nil {
+			scheme = "http"
+		}
+
+		log.Infof("Request Completed URI: %s://%s%s | Method: %s | Status: %d | Duration: %s",
+			scheme, req.Host, req.RequestURI, req.Method, resWriter.Status(), duration)
+	}
+
+	return http.HandlerFunc(logFunc)
+}
+
 func init() {
 	godotenv.Load(".env")
 	env := os.Getenv("ENVIRONMENT")
@@ -116,25 +137,4 @@ func Error(format string, v ...interface{}) {
 // panic
 func Panic(format string, v ...interface{}) {
 	log.Panicf(format, v...)
-}
-
-// Log Middleware
-func LogMiddleware(h http.Handler) http.Handler {
-	logFunc := func(res http.ResponseWriter, req *http.Request) {
-		resWriter := middleware.NewWrapResponseWriter(res, req.ProtoMajor)
-		start := time.Now()
-
-		h.ServeHTTP(resWriter, req)
-		duration := time.Since(start)
-
-		scheme := "https"
-		if req.TLS != nil {
-			scheme = "http"
-		}
-
-		log.Infof("Request Completed URI: %s://%s%s | Method: %s | Status: %d | Duration: %s",
-			scheme, req.Host, req.RequestURI, req.Method, resWriter.Status(), duration)
-	}
-
-	return http.HandlerFunc(logFunc)
 }
