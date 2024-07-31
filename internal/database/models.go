@@ -16,5 +16,5 @@ type User struct {
 	UpdatedAt time.Time
 	Fname     string
 	Lname     string
-	Location  string
+	ApiKey    string
 }

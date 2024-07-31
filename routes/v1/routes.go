@@ -22,5 +22,10 @@ func InitV1Routes(dbq *database.Queries) *chi.Mux {
 		handlers.HandleCreateUser(w, r, dbq)
 	})
 
+	// Route to get authenticated user
+	v1Router.Get("/user", func(w http.ResponseWriter, r *http.Request) {
+		handlers.HandleGetUser(w, r, dbq)
+	})
+
 	return v1Router
 }
