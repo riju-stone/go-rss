@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/riju-stone/go-rss/internal/auth"
 	"github.com/riju-stone/go-rss/internal/database"
 	"github.com/riju-stone/go-rss/utils"
 )
@@ -60,18 +59,6 @@ func HandleCreateUser(w http.ResponseWriter, r *http.Request, dbq *database.Quer
 	utils.JsonResponse(w, 201, FormatUserModel(user))
 }
 
-func HandleGetUser(w http.ResponseWriter, r *http.Request, dbq *database.Queries) {
-	apiKey, err := auth.AuthenticateApiKey(r.Header)
-	if err != nil {
-		utils.ErrorResponse(w, 401, "Failed to authenticate user")
-		return
-	}
-
-	user, err := dbq.GetUserFromApiKey(r.Context(), apiKey)
-	if err != nil {
-		utils.ErrorResponse(w, 404, "User not found")
-		return
-	}
-
+func HandleGetUser(w http.ResponseWriter, r *http.Request, user database.User) {
 	utils.JsonResponse(w, 200, FormatUserModel(user))
 }
