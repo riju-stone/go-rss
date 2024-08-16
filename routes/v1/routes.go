@@ -26,5 +26,12 @@ func InitV1Routes(dbq *database.Queries) *chi.Mux {
 	// Route to get authenticated user
 	v1Router.Get("/user", middleware.AuthMiddlware(handlers.HandleGetUser, dbq))
 
+	// Route to create a few rss feed
+	v1Router.Post("/create-feed", middleware.AuthMiddlware(handlers.HandleCreateFeed, dbq))
+
+	// Route to get all feeds
+	v1Router.Get("/all-feeds", func(w http.ResponseWriter, r *http.Request) {
+		handlers.HandleGetAllFeeds(w, r, dbq)
+	})
 	return v1Router
 }

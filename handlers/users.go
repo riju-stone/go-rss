@@ -59,6 +59,6 @@ func HandleCreateUser(w http.ResponseWriter, r *http.Request, dbq *database.Quer
 	utils.JsonResponse(w, 201, FormatUserModel(user))
 }
 
-func HandleGetUser(w http.ResponseWriter, r *http.Request, user database.User) {
+func HandleGetUser(w http.ResponseWriter, r *http.Request, dbq *database.Queries, user database.User) {
 	utils.JsonResponse(w, 200, FormatUserModel(user))
 }

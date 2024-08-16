@@ -8,7 +8,7 @@ import (
 	"github.com/riju-stone/go-rss/utils"
 )
 
-type AuthHandler func(http.ResponseWriter, *http.Request, database.User)
+type AuthHandler func(http.ResponseWriter, *http.Request, *database.Queries, database.User)
 
 func AuthMiddlware(handler AuthHandler, dbq *database.Queries) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -24,6 +24,6 @@ func AuthMiddlware(handler AuthHandler, dbq *database.Queries) http.HandlerFunc 
 			return
 		}
 
-		handler(w, r, user)
+		handler(w, r, dbq, user)
 	}
 }
