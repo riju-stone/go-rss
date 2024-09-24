@@ -18,4 +18,6 @@ func JsonResponse(w http.ResponseWriter, statusCode int, payload interface{}) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	w.Write(data)
+
+	log.Info("Response Payload: %s", data)
 }

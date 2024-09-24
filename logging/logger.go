@@ -59,7 +59,7 @@ func (f *CustomLogFormat) Format(entry *logrus.Entry) ([]byte, error) {
 	return []byte(logOutput), nil
 }
 
-// Log Middleware
+// Log Middleware Function
 func LogMiddleware(h http.Handler) http.Handler {
 	logFunc := func(res http.ResponseWriter, req *http.Request) {
 		resWriter := middleware.NewWrapResponseWriter(res, req.ProtoMajor)

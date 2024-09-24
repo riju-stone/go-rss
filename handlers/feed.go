@@ -67,5 +67,5 @@ func HandleGetAllFeeds(w http.ResponseWriter, r *http.Request, dbq *database.Que
 		utils.ErrorResponse(w, 400, "Could not fetch feeds")
 		return
 	}
-	utils.JsonResponse(w, 200, feeds)
+	utils.JsonResponse(w, 201, feeds)
 }
