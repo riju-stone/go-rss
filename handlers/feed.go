@@ -16,11 +16,11 @@ type FeedParams struct {
 }
 
 type FeedModel struct {
-	ID        uuid.UUID `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Url       string    `json:"url"`
 	Name      string    `json:"feed_name"`
+	ID        uuid.UUID `json:"id"`
 	UserID    uuid.UUID `json:"user_id"`
 }
 

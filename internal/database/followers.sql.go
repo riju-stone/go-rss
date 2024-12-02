@@ -77,3 +77,17 @@ func (q *Queries) GetFollowedFeeds(ctx context.Context, userID uuid.UUID) ([]Fee
 	}
 	return items, nil
 }
+
+const unfollowFeed = `-- name: UnfollowFeed :exec
+DELETE FROM feed_follows WHERE id=$1 AND user_id=$2
+`
+
+type UnfollowFeedParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) UnfollowFeed(ctx context.Context, arg UnfollowFeedParams) error {
+	_, err := q.db.ExecContext(ctx, unfollowFeed, arg.ID, arg.UserID)
+	return err
+}

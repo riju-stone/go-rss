@@ -16,12 +16,12 @@ type UserParams struct {
 }
 
 type UserModel struct {
-	ID        uuid.UUID `json:"id"`
-	Fname     string    `json:"fname"`
-	Lname     string    `json:"lname"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	Fname     string    `json:"fname"`
+	Lname     string    `json:"lname"`
 	ApiKey    string    `json:"api_key"`
+	ID        uuid.UUID `json:"id"`
 }
 
 // Function to format new user response as per UserModel

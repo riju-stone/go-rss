@@ -34,7 +34,7 @@ func InitV1Routes(dbq *database.Queries) *chi.Mux {
 		handlers.HandleGetAllFeeds(w, r, dbq)
 	})
 
-	// Route to Follow a feeds
+	// Route to Follow a feed
 	v1Router.Post("/follow-feed", middleware.AuthMiddlware(handlers.HandleFollowFeed, dbq))
 
 	// Route to Get all followed feeds
