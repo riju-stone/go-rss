@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/riju-stone/go-rss/internal/database"
 	"github.com/riju-stone/go-rss/utils"
@@ -79,4 +81,22 @@ func HandleGetFollowedFeeds(w http.ResponseWriter, r *http.Request, dbq *databas
 	}
 
 	utils.JsonResponse(w, 200, feeds)
+}
+
+func HandleUnfollowFeed(w http.ResponseWriter, r *http.Request, dbq *database.Queries, user database.User) {
+	feedIdString := chi.URLParam(r, "feedId")
+	feedId, err := uuid.Parse(feedIdString)
+	if err != nil {
+		utils.ErrorResponse(w, 400, "Could not parse the feed id you want to unfollow")
+	}
+
+	err = dbq.UnfollowFeed(r.Context(), database.UnfollowFeedParams{
+		ID:     feedId,
+		UserID: user.ID,
+	})
+	if err != nil {
+		utils.ErrorResponse(w, 400, "Failed to unfollow feed")
+	}
+
+	utils.JsonResponse(w, 200, fmt.Sprintf("Successfully unfollowed feed %s", feedId))
 }
