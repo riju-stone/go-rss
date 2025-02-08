@@ -15,7 +15,7 @@ import (
 const createFeed = `-- name: CreateFeed :one
 INSERT INTO feeds (id, created_at, updated_at, feed_name, url, user_id)
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, created_at, updated_at, feed_name, url, user_id
+RETURNING id, created_at, updated_at, feed_name, url, user_id, fetched_at
 `
 
 type CreateFeedParams struct {
@@ -44,12 +44,34 @@ func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, e
 		&i.FeedName,
 		&i.Url,
 		&i.UserID,
+		&i.FetchedAt,
+	)
+	return i, err
+}
+
+const fetchLatestFromFeed = `-- name: FetchLatestFromFeed :one
+SELECT id, created_at, updated_at, feed_name, url, user_id, fetched_at FROM feeds
+ORDER BY fetched_at ASC NULLS FIRST
+LIMIT 1
+`
+
+func (q *Queries) FetchLatestFromFeed(ctx context.Context) (Feed, error) {
+	row := q.db.QueryRowContext(ctx, fetchLatestFromFeed)
+	var i Feed
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.FeedName,
+		&i.Url,
+		&i.UserID,
+		&i.FetchedAt,
 	)
 	return i, err
 }
 
 const getAllFeeds = `-- name: GetAllFeeds :many
-SELECT id, created_at, updated_at, feed_name, url, user_id FROM feeds
+SELECT id, created_at, updated_at, feed_name, url, user_id, fetched_at FROM feeds
 `
 
 func (q *Queries) GetAllFeeds(ctx context.Context) ([]Feed, error) {
@@ -68,6 +90,7 @@ func (q *Queries) GetAllFeeds(ctx context.Context) ([]Feed, error) {
 			&i.FeedName,
 			&i.Url,
 			&i.UserID,
+			&i.FetchedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -80,4 +103,27 @@ func (q *Queries) GetAllFeeds(ctx context.Context) ([]Feed, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const markFetchedFeed = `-- name: MarkFetchedFeed :one
+UPDATE feeds
+SET fetched_at = NOW(),
+updated_at = NOW()
+WHERE id = $1
+RETURNING id, created_at, updated_at, feed_name, url, user_id, fetched_at
+`
+
+func (q *Queries) MarkFetchedFeed(ctx context.Context, id uuid.UUID) (Feed, error) {
+	row := q.db.QueryRowContext(ctx, markFetchedFeed, id)
+	var i Feed
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.FeedName,
+		&i.Url,
+		&i.UserID,
+		&i.FetchedAt,
+	)
+	return i, err
 }
