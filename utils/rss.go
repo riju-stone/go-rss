@@ -14,30 +14,32 @@ type RSSItem struct {
 	PubDate     string `xml:"pubDate"`
 }
 
+type RSSChannel struct {
+	Title       string    `xml:"title"`
+	Link        string    `xml:"link"`
+	Description string    `xml:"description"`
+	Language    string    `xml:"language"`
+	Item        []RSSItem `xml:"item"`
+}
+
 type RSSFeed struct {
-	Channel struct {
-		Title       string    `xml:"title"`
-		Link        string    `xml:"link"`
-		Description string    `xml:"description"`
-		Language    string    `xml:"language"`
-		Item        []RSSItem `xml:"item"`
-	} `xml:"channel`
+	Channel RSSChannel `xml:"channel"`
 }
 
 func UrltoRssFeed(url string) (RSSFeed, error) {
 	// http client to fetch the Rss Feed
 	rssClient := http.Client{
-		Timeout: 10 * time.Second,
+		Timeout: 20 * time.Second,
 	}
 
-	response, err := rssClient.Get(url)
+	resp, err := rssClient.Get(url)
 	if err != nil {
 		return RSSFeed{}, err
 	}
 
-	defer response.Body.Close()
+	defer resp.Body.Close()
 
-	rssData, err := io.ReadAll(response.Body)
+	rssData, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return RSSFeed{}, err
 	}
