@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
@@ -28,6 +29,9 @@ func main() {
 
 	// Initializing sqlc db conection
 	dbQueries := database.New(dbConn)
+
+	// Start scraping for new RSS Feeds
+	go utils.InitRssScraper(dbQueries, 10, time.Minute)
 
 	// Creating a new router
 	router := chi.NewRouter()
