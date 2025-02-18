@@ -2,9 +2,11 @@ package utils
 
 import (
 	"context"
+	"database/sql"
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/riju-stone/go-rss/internal/database"
 	log "github.com/riju-stone/go-rss/logging"
 )
@@ -44,7 +46,32 @@ func ScrapeFeed(wg *sync.WaitGroup, db *database.Queries, feed database.Feed) {
 
 	for _, item := range rssFeed.Channel.Item {
 		log.Debug("Found Post %v on Feed %v", item.Title, feed.FeedName)
+
+		postDescription := sql.NullString{}
+		if item.Description != "" {
+			postDescription.String = item.Description
+			postDescription.Valid = true
+		}
+
+		postPublishedAt, err := time.Parse(time.RFC1123Z, item.PubDate)
+		if err != nil {
+			log.Error("Could not parse published of Feed %v", feed.FeedName)
+		}
+
+		_, err = db.CreateNewPost(context.Background(), database.CreateNewPostParams{
+			ID:          uuid.New(),
+			CreatedAt:   time.Now().UTC(),
+			UpdatedAt:   time.Now().UTC(),
+			Title:       item.Title,
+			Description: postDescription,
+			PublishedAt: postPublishedAt,
+			Url:         item.Link,
+			FeedID:      feed.ID,
+		})
+		if err != nil {
+			log.Error("Unable to create post for %v %v", item.Title, err)
+		}
 	}
 
-	log.Debug("Feed %v collected. %v posts found", feed.FeedName, len(rssFeed.Channel.Item))
+	log.Info("Feed %v collected. %v posts found", feed.FeedName, len(rssFeed.Channel.Item))
 }

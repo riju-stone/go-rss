@@ -43,5 +43,8 @@ func InitV1Routes(dbq *database.Queries) *chi.Mux {
 	// Unfollow a feed
 	v1Router.Delete("/user/unfollow/{feedId}", middleware.AuthMiddlware(handlers.HandleUnfollowFeed, dbq))
 
+	// Get latest Posts followed by User
+	v1Router.Get("/posts", middleware.AuthMiddlware(handlers.HandleGetPostsFollowedByUser, dbq))
+
 	return v1Router
 }

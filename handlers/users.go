@@ -24,6 +24,17 @@ type UserModel struct {
 	ID        uuid.UUID `json:"id"`
 }
 
+type PostModel struct {
+	ID          uuid.UUID `json:"id"`
+	Title       string    `json:"title"`
+	Description *string   `json:"description"`
+	Url         string    `json:"url"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	PublishedAt time.Time `json:"published_at"`
+	FeedID      uuid.UUID `json:"feed_id"`
+}
+
 // Function to format new user response as per UserModel
 func FormatUserModel(user database.User) UserModel {
 	return UserModel{
@@ -33,6 +44,19 @@ func FormatUserModel(user database.User) UserModel {
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 		ApiKey:    user.ApiKey,
+	}
+}
+
+func FormatPostModel(post database.Post) PostModel {
+	return PostModel{
+		ID:          post.ID,
+		Title:       post.Title,
+		Description: &post.Description.String,
+		Url:         post.Url,
+		CreatedAt:   post.CreatedAt,
+		UpdatedAt:   post.UpdatedAt,
+		PublishedAt: post.PublishedAt,
+		FeedID:      post.FeedID,
 	}
 }
 
@@ -61,4 +85,26 @@ func HandleCreateUser(w http.ResponseWriter, r *http.Request, dbq *database.Quer
 
 func HandleGetUser(w http.ResponseWriter, r *http.Request, dbq *database.Queries, user database.User) {
 	utils.JsonResponse(w, 200, FormatUserModel(user))
+}
+
+func ConvertToPostList(posts []database.Post) []PostModel {
+	postsArr := []PostModel{}
+	for _, post := range posts {
+		postsArr = append(postsArr, FormatPostModel(post))
+	}
+
+	return postsArr
+}
+
+func HandleGetPostsFollowedByUser(w http.ResponseWriter, r *http.Request, dbq *database.Queries, user database.User) {
+	posts, err := dbq.GetUserFollowedPosts(r.Context(), database.GetUserFollowedPostsParams{
+		UserID: user.ID,
+		Limit:  10,
+	})
+	if err != nil {
+		utils.ErrorResponse(w, 400, "Failed to fetch latest posts")
+		return
+	}
+
+	utils.JsonResponse(w, 200, ConvertToPostList(posts))
 }
